@@ -1,0 +1,19 @@
+.winner-container {
+    display: none;
+    z-index: 10;
+    background-color: #e1e1e1;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    box-sizing: border-box;
+    z-index: 10;
+}
+
+.winner {
+    background-color: white;
+    width: 90%;
+    height: 100px;
+    line-height: 100px;
+}

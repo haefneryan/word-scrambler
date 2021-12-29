@@ -1,131 +1,172 @@
 import React, { useState, useEffect } from "react";
-import axios from 'axios';
-import './App.css';
+import axios from "axios";
+import classes from "./App.css";
 
-import Info from './components/Info';
+import Info from "./components/Info";
 import Keyboard from "./components/Keyboard";
+import Winner from "./components/Winner";
 
-function App() {
-  const url = 'https://api.hatchways.io/assessment/sentences/1'
+function App(props) {
+  const [urlNumber, setUrlNumber] = useState(1);
+  const url = `https://api.hatchways.io/assessment/sentences/${urlNumber}`;
   const [sentence, setSentence] = useState(null);
-  let sentenceArray = ({
-    word1: [],
-    word2: [],
-    word3: [],
-    word4: [],
-    word5: []
-  });
+  let sentenceArray = [[], [], [], [], []];
   const [scrambledSentence, setScrambledSentence] = useState();
+  let comparisonSentenceArray = [[], [], [], [], []];
+  let scrambledSentenceArray = [[], [], [], [], []];
   const [dataLoaded, setDataLoaded] = useState(false);
-  let scrambledSentenceArray = ({
-    word1: [],
-    word2: [],
-    word3: [],
-    word4: [],
-    word5: []
-  });
-
-  const getData = async () => {
-    await axios.get(url).then(response => {
-      console.log(response)
-      setSentence(response.data.data.sentence)
-      setScrambledSentence(response.data.data.sentence)
-      setDataLoaded(true)
-    })
-  }
+  const [answer, setAnswer] = useState( [[], [], [], [], []] );
+  const [winner, setWinner] = useState(false);
+  const [score, setScore] = useState(0);
+  let endX;
+  let endY;
 
   useEffect(() => {
-    getData();
+    axios.get(url).then((response) => {
+      setSentence(response.data.data.sentence);
+      setScrambledSentence(response.data.data.sentence);
+      setDataLoaded(true)
+      scramble()
+      setWinner(false)
+    });
   }, [url]);
 
-  // useEffect(() => {
-  //   console.log('scramble')
-  //   if (dataLoaded) {
-  //     scramble(sentence);
-  //     console.log('scramble')
-  //   }
-  // }, [sentence]);
+  useEffect(() => {
+    scramble()
+  }, [dataLoaded])
 
-  if(dataLoaded) {
-    let array = sentence.split('')
-    console.log(array)
-    let z = 1;
-    array.map(x => {
-      if (x === ' ') {
-        z++
-      } else {
-        if (z === 1) {
-          sentenceArray.word1.push(x)
-          scrambledSentenceArray.word1.push(x)
-        } else if (z === 2 ) {
-          sentenceArray.word2.push(x)
-          scrambledSentenceArray.word2.push(x)
-        } else if (z === 3 ) {
-          sentenceArray.word3.push(x)
-          scrambledSentenceArray.word3.push(x)
-        } else if (z === 4 ) {
-          sentenceArray.word4.push(x)
-          scrambledSentenceArray.word4.push(x)
-        } else if (z === 5 ) {
-          sentenceArray.word5.push(x)
-          scrambledSentenceArray.word5.push(x)
-        }
-      }
-    })
-    console.log(sentenceArray)
+  if (dataLoaded) {
+    let array = sentence.split("");
+    let z = 0;
+    array.map((x) => {
+      sentenceArray[z].push(x)
+      comparisonSentenceArray[z].push(x.toLowerCase())
+      if (x === " ") {
+        z++;
+      } 
+    });
+    endX = z;
+    endY = sentenceArray[endX].length
   }
 
-  const scramble = (sentence) => {
-    let array = sentence.split('')
-    console.log(array)
-    let z = 1;
-    array.map(x => {
-      if (x === ' ') {
-        z++
-      } else {
-        if (z === 1) {
-          sentenceArray.word1.push(x)
-          scrambledSentenceArray.word1.push(x)
-        } else if (z === 2 ) {
-          sentenceArray.word2.push(x)
-          scrambledSentenceArray.word2.push(x)
-        } else if (z === 3 ) {
-          sentenceArray.word3.push(x)
-          scrambledSentenceArray.word3.push(x)
-        } else if (z === 4 ) {
-          sentenceArray.word4.push(x)
-          scrambledSentenceArray.word4.push(x)
-        } else if (z === 5 ) {
-          sentenceArray.word5.push(x)
-          scrambledSentenceArray.word5.push(x)
-        }
+  const scramble = (scrambledSentenceArray) => {
+    scrambledSentenceArray = sentenceArray;
+    scrambledSentenceArray.forEach((element) => {
+      if (element[element.length - 1] === ' ') {
+        element.splice(-1)
       }
-    })
-    console.log(sentenceArray)
-    Object.values(scrambledSentenceArray).forEach(element => {
-      if (element.length >= 3) {
+      if (element.length > 3) {
         for (let i = element.length - 2; i > 1; i--) {
           let x = Math.floor(Math.random() * (element.length - 2)) + 1;
-          let temp = element[i]
-          element[i] = element[x]
-          element[x] = temp
+          let temp = element[i];
+          element[i] = element[x];
+          element[x] = temp;
         }
       }
     });
-    let q = scrambledSentenceArray.word1.join('') + ' ' + scrambledSentenceArray.word2.join('') + ' ' + scrambledSentenceArray.word3.join('') + ' ' + scrambledSentenceArray.word4.join('') + ' ' + scrambledSentenceArray.word5.join('')
-    setScrambledSentence(q)
+    let q =
+      scrambledSentenceArray[0].join("") +
+      " " +
+      scrambledSentenceArray[1].join("") +
+      " " +
+      scrambledSentenceArray[2].join("") +
+      " " +
+      scrambledSentenceArray[3].join("") +
+      " " +
+      scrambledSentenceArray[4].join("");
+    return setScrambledSentence(q);
+  };
+
+  const handleInputChange = (e, index, xIndex, yIndex) => {
+    let x = e.key.toLowerCase()
+    if (x === 'tab' || x === 'shift' || x === 'capslock' || x === 'control' || x === 'alt' || x === 'enter') {
+      if (winner === true && x === 'enter') {
+        next(urlNumber)
+      }
+    } else if(x === 'backspace') {
+      if(xIndex === 0 && yIndex === 1) {} else {
+        document.getElementById(parseInt(document.activeElement.id) - 1).focus();
+        document.getElementById(parseInt(document.activeElement.id)).value = '';
+        document.getElementById(parseInt(document.activeElement.id)).style.backgroundColor = '#e1e1e1';
+        document.getElementById(parseInt(document.activeElement.id)).style.color = 'black';
+        setAnswer([...answer],  answer[index].splice(-1))
+      }
+    } else if(x >= 'a' && x <= 'z' || x === ' '){
+      setAnswer([...answer],  answer[index].push(x))
+      if(xIndex === endX && yIndex === endY) {  
+        document.getElementById(parseInt(document.activeElement.id)).style.backgroundColor = '#4caf50';
+        document.getElementById(parseInt(document.activeElement.id)).style.color = 'white';
+      } else {  
+        document.getElementById(parseInt(document.activeElement.id) + 1).focus();
+      }
+    } else {
+      alert('Input must be a letter')
+    }
+    checkAnswer(answer, comparisonSentenceArray)
   }
 
+  useEffect(() => {
+    answer.forEach((x, index) => {
+      let xIndex = index
+      x.forEach((y, index) => {
+        if(y === comparisonSentenceArray[xIndex][index]) {
+          document.getElementById(parseInt(document.activeElement.id)-1).style.backgroundColor = '#4caf50';
+          document.getElementById(parseInt(document.activeElement.id)-1).style.color = 'white';
+        } else {
+          document.getElementById(parseInt(document.activeElement.id)-1).style.backgroundColor = '#e1e1e1';
+          document.getElementById(parseInt(document.activeElement.id)-1).style.color = 'black';
+        }
+      })
+    })
+  }, [answer])
+
+  const checkAnswer = (answer, comparisonSentenceArray) => {
+    let c = JSON.stringify(comparisonSentenceArray)
+    let a = JSON.stringify(answer)
+    setWinner(c === a)
+  }
+
+  const next = (urlNumber) => {
+    if (urlNumber === 10) {
+      document.getElementById('winner-container').style.display = 'block';
+    } else {
+      setDataLoaded(false)
+      setAnswer([ [], [], [], [], []] )
+      setUrlNumber(urlNumber + 1)
+      setWinner(false)
+      incrementCount()
+    }
+  }
+
+  const incrementCount = () => {
+    setScore(score + 1)
+  }
+
+  useEffect(() => {
+    if(dataLoaded){
+      if (winner === true) {
+        document.getElementById('nextButton').style.display = 'inline-block';
+      } else {
+        document.getElementById('nextButton').style.display = 'none';
+      }
+    }
+  })
+
   if (sentence === null) {
-    return (
-      <p>loading...</p>
-    )
+    return <p>loading...</p>;
   } else {
     return (
       <div className="App">
         <div className="container">
-          <Info sentence={sentence} scrambledSentence={scrambledSentence} scramble={scramble}/>
-          <Keyboard sentenceArray={sentenceArray}/>
+          <Info
+            sentence={sentence}
+            scrambledSentence={scrambledSentence}
+            scramble={scramble}
+            score={score}
+          />
+          <Keyboard sentenceArray={sentenceArray} handleInputChange={handleInputChange}/>
+          <button className='nextButton' id='nextButton' onClick={() => next(urlNumber)}>NEXT</button>
+          <Winner />
         </div>
       </div>
     );
