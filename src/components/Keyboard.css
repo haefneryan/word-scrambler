@@ -42,3 +42,8 @@ input {
   outline: none;
   text-align: center;
 }
+
+.correct {
+  background-color: #4caf50;
+  color: white;
+}

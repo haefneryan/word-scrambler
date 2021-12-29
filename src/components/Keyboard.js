@@ -27,7 +27,6 @@ function Keyboard(props) {
                   </div>
                 );
               })}
-              {/* {index !== sentenceArray.length - 2 && (<div className="space"></div>)} */}
             </div>
           );
         }
