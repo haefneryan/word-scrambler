@@ -72,61 +72,63 @@ function App() {
     return setScrambledSentence(q);
   };
 
-  // Keyboard input handler, sets answer state
+  // Keyboard input handler, sets answer state, changes keyboard classes
   const handleInputChange = (e, index, xIndex, yIndex) => {
     let x = e.key.toLowerCase()
     if (x === 'tab' || x === 'shift' || x === 'capslock' || x === 'control' || x === 'alt' || x === 'enter') {
       if (winner === true && x === 'enter') {
         next(urlNumber)
       }
-    } else if(x === 'backspace') {
-      if(xIndex === 0 && yIndex === 1) {} else {
-        document.getElementById(parseInt(document.activeElement.id) - 1).classList.remove('correct')
-        document.getElementById(parseInt(document.activeElement.id) - 1).focus();
-        document.getElementById(parseInt(document.activeElement.id)).value = '';
-        setAnswer([...answer],  answer[index].splice(-1))
-      }
-    } else if(x >= 'a' && x <= 'z' || x === ' '){
+    } else if(((x >= 'a' && x <= 'z') || x === ' ') && x !== 'backspace'){
       setAnswer([...answer],  answer[index].push(x))
-      if(xIndex === endX && yIndex === endY) {
-        
-      } else {  
+      if (x === comparisonSentenceArray[xIndex][yIndex-1]) {
+        document.getElementById(parseInt(document.activeElement.id)).classList.add('correct')
+      } 
+      if(xIndex === endX && yIndex === endY) {} else {  
         document.getElementById(parseInt(document.activeElement.id) + 1).focus();
       }
+    } else if(x === 'backspace') {
+      if (!(xIndex === endX && yIndex === endY)) {
+        document.getElementById(document.activeElement.id).classList.remove('correct')
+        document.getElementById(parseInt(document.activeElement.id) - 1).classList.remove('correct')
+        document.getElementById(parseInt(document.activeElement.id) - 1).focus();
+        document.getElementById(document.activeElement.id).value = '';
+        if (yIndex === 1) {
+          setAnswer([...answer],  answer[index-1].splice(-1))
+        } else {
+          setAnswer([...answer],  answer[index].splice(-1))
+        }
+      } else if((xIndex === endX && yIndex === endY)) { // if last input cell is active
+        if(answer[xIndex][yIndex-1]) { // if last input cell is not empty
+          setAnswer([...answer],  answer[index].splice(-1))
+          document.getElementById(document.activeElement.id).classList.remove('correct')
+        } else if (!answer[xIndex][yIndex-1]) { // if last input cell is empty
+          document.getElementById(parseInt(document.activeElement.id) - 1).focus();
+          document.getElementById(document.activeElement.id).classList.remove('correct')
+          document.getElementById(document.activeElement.id).value = '';
+          setAnswer([...answer],  answer[index].splice(-1))
+        }
+      }  
     } else {
       alert('Input must be a letter')
     }
     checkAnswer(answer, comparisonSentenceArray)
   }
 
-  // Checks answer and changes style
   useEffect(() => {
-    answer.forEach((x, index) => {
-      let xIndex = index
-      x.forEach((y, index) => {
-        console.log(y)
-        console.log(comparisonSentenceArray[xIndex][index])
-        console.log('x:' + xIndex)
-        console.log('y:' + index)
-        if(y === comparisonSentenceArray[xIndex][index]) {
-          console.log('match')
-          document.getElementById(parseInt(document.activeElement.id)-1).classList.add('correct')
-        }
-        
-      })
-    })
+    console.log(answer)
   }, [answer])
 
   // Checks to see if input matches answer
   const checkAnswer = (answer, comparisonSentenceArray) => {
     let c = JSON.stringify(comparisonSentenceArray)
     let a = JSON.stringify(answer)
-    setWinner(c === a)
+    return setWinner(c === a)
   }
 
   // Next function when next button is displayed
   const next = (urlNumber) => {
-    if (urlNumber === 10) {
+    if (urlNumber === 10 && score === 9) {
       document.getElementById('winner-container').style.display = 'block';
     } else {
       setDataLoaded(false)
@@ -152,7 +154,7 @@ function App() {
     }
   })
 
-  if (sentence === null) {
+  if (dataLoaded === false) {
     return <p>loading...</p>;
   } else {
     return (

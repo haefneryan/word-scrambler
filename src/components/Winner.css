@@ -14,6 +14,10 @@
 .winner {
     background-color: white;
     width: 90%;
-    height: 100px;
-    line-height: 100px;
+    margin: 0px;
+    height: 200px;
+}
+
+.text {
+ padding-top: 50px;
 }

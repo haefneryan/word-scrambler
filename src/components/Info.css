@@ -1,3 +1,7 @@
 .scrambledWord {
   color: darkblue;
 }
+
+p {
+  padding: 0;
+}
