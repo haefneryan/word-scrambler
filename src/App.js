@@ -53,7 +53,7 @@ function App() {
   }
 
   // Scrambles sentence
-  const scramble = (scrambledSentenceArray) => {
+  const scramble = () => {
     scrambledSentenceArray = sentenceArray;
     scrambledSentenceArray.forEach((element) => {
       if (element[element.length - 1] === ' ') {
@@ -69,7 +69,7 @@ function App() {
       }
     });
     let q = scrambledSentenceArray[0].join("") + " " + scrambledSentenceArray[1].join("") + " " + scrambledSentenceArray[2].join("") + " " + scrambledSentenceArray[3].join("") + " " + scrambledSentenceArray[4].join("");
-    return setScrambledSentence(q);
+    setScrambledSentence(q);
   };
 
   // Keyboard input handler, sets answer state, changes keyboard classes
@@ -82,7 +82,7 @@ function App() {
     } else if(((x >= 'a' && x <= 'z') || x === ' ') && x !== 'backspace'){
       setAnswer([...answer],  answer[index].push(x))
       if (x === comparisonSentenceArray[xIndex][yIndex-1]) {
-        document.getElementById(parseInt(document.activeElement.id)).classList.add('correct')
+        document.getElementById(document.activeElement.id).classList.add('correct')
       } 
       if(xIndex === endX && yIndex === endY) {} else {  
         document.getElementById(parseInt(document.activeElement.id) + 1).focus();
@@ -98,11 +98,11 @@ function App() {
         } else {
           setAnswer([...answer],  answer[index].splice(-1))
         }
-      } else if((xIndex === endX && yIndex === endY)) { // if last input cell is active
-        if(answer[xIndex][yIndex-1]) { // if last input cell is not empty
+      } else if((xIndex === endX && yIndex === endY)) {
+        if(answer[xIndex][yIndex-1]) {
           setAnswer([...answer],  answer[index].splice(-1))
           document.getElementById(document.activeElement.id).classList.remove('correct')
-        } else if (!answer[xIndex][yIndex-1]) { // if last input cell is empty
+        } else if (!answer[xIndex][yIndex-1]) {
           document.getElementById(parseInt(document.activeElement.id) - 1).focus();
           document.getElementById(document.activeElement.id).classList.remove('correct')
           document.getElementById(document.activeElement.id).value = '';
@@ -115,10 +115,6 @@ function App() {
     checkAnswer(answer, comparisonSentenceArray)
   }
 
-  useEffect(() => {
-    console.log(answer)
-  }, [answer])
-
   // Checks to see if input matches answer
   const checkAnswer = (answer, comparisonSentenceArray) => {
     let c = JSON.stringify(comparisonSentenceArray)
@@ -128,14 +124,12 @@ function App() {
 
   // Next function when next button is displayed
   const next = (urlNumber) => {
-    if (urlNumber === 10 && score === 9) {
-      document.getElementById('winner-container').style.display = 'block';
-    } else {
-      setDataLoaded(false)
-      setAnswer([ [], [], [], [], []] )
-      setUrlNumber(urlNumber + 1)
-      setWinner(false)
-      incrementCount()
+    if (urlNumber < 10) {
+      setDataLoaded(false);
+      setAnswer([ [], [], [], [], [] ]);
+      setUrlNumber(urlNumber + 1);
+      setWinner(false);
+      incrementCount();
     }
   }
 
@@ -143,16 +137,6 @@ function App() {
   const incrementCount = () => {
     setScore(score + 1)
   }
-
-  useEffect(() => {
-    if(dataLoaded){
-      if (winner === true) {
-        document.getElementById('nextButton').style.display = 'inline-block';
-      } else {
-        document.getElementById('nextButton').style.display = 'none';
-      }
-    }
-  })
 
   if (dataLoaded === false) {
     return <p>loading...</p>;
@@ -167,8 +151,8 @@ function App() {
             score={score}
           />
           <Keyboard sentenceArray={sentenceArray} handleInputChange={handleInputChange}/>
-          <button className='nextButton' id='nextButton' onClick={() => next(urlNumber)}>NEXT</button>
-          <Winner />
+          {winner ? <button className='nextButton' id='nextButton' onClick={() => next(urlNumber)}>NEXT</button> : ''}
+          {(urlNumber === 10 && winner) ? <Winner /> : ''}
         </div>
       </div>
     );
