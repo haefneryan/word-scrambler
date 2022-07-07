@@ -1,21 +1,22 @@
-import React from 'react'
+import React from "react";
 
-import classes from './Winner.css'
+import "./Winner.css";
 
 function Winner() {
+  const playAgain = () => {
+    window.location.reload();
+  };
 
-    const playAgain = () => {
-        window.location.reload()
-    }
-
-    return (
-        <div className='winner-container' id='winner-container'>
-            <div className='winner' id='winner'>
-                <p className='text'>You Win!</p>
-                <button className='nextButton' id='playAgain' onClick={playAgain}>Play Again</button>
-            </div>
-        </div>
-    )
+  return (
+    <div className="winner-container" id="winner-container">
+      <div className="winner" id="winner">
+        <p className="text">You Win!</p>
+        <button className="nextButton" id="playAgain" onClick={playAgain}>
+          Play Again
+        </button>
+      </div>
+    </div>
+  );
 }
 
-export default Winner
+export default Winner;
